@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Gerador de Senha Segura | Força da Senha</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #10141c 0%, #1a1f2a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        /* Card principal */
+        .card {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(22, 28, 38, 0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            padding: 2rem 1.8rem 2.2rem;
+            transition: all 0.2s ease;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #E9F1FF, #B9E0FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+            margin-bottom: 0.3rem;
+            display: inline-block;
+        }
+
+        .sub {
+            color: #8e9aaf;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            border-left: 3px solid #3b82f6;
+            padding-left: 0.75rem;
+        }
+
+        /* Área da senha gerada */
+        .password-area {
+            background: #0f1219;
+            border-radius: 1.5rem;
+            padding: 0.25rem;
+            margin-bottom: 2rem;
+            border: 1px solid #2a2f3c;
+            transition: all 0.2s;
+        }
+
+        .password-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0a0d14;
+            border-radius: 1.3rem;
+            padding: 0.2rem 0.2rem 0.2rem 1.2rem;
+        }
+
+        #senhaOutput {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 1.45rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            background: transparent;
+            border: none;
+            color: #eef4ff;
+            width: 100%;
+            padding: 0.9rem 0;
+            outline: none;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            background: #2d3548;
+            border: none;
+            color: #cbd5e6;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.7rem 1rem;
+            border-radius: 1.2rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .copy-btn:hover {
+            background: #3b82f6;
+            color: white;
+            transform: scale(0.97);
+        }
+
+        /* Controles slider */
+        .control-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.7rem;
+        }
+
+        .control-header label {
+            font-weight: 600;
+            color: #cddcff;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .length-value {
+            background: #0b0f17;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #60a5fa;
+            font-family: monospace;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 5px;
+            -webkit-appearance: none;
+            background: #232838;
+            border-radius: 10px;
+            outline: none;
+        }
+
+        input[type="range"]:focus {
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 6px #3b82f6;
+            border: none;
+        }
+
+        /* checkboxes grid */
+        .checks-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+            margin: 1.2rem 0 1.2rem;
+            background: #0f131c80;
+            padding: 0.8rem 0.5rem;
+            border-radius: 1.2rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            background: #1a1f2b;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            transition: 0.1s;
+        }
+
+        .check-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #3b82f6;
+        }
+
+        .check-item label {
+            font-weight: 500;
+            color: #e2e8ff;
+            cursor: pointer;
+        }
+
+        /* força da senha */
+        .strength-section {
+            margin: 1.5rem 0 1.8rem;
+        }
+
+        .strength-title {
+            font-size: 0.85rem;
+            color: #9aa4bf;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .strength-meter {
+            display: flex;
+            gap: 10px;
+            margin: 0.5rem 0 0.8rem;
+        }
+
+        .meter-bar {
+            flex: 1;
+            height: 8px;
+            background: #232838;
+            border-radius: 20px;
+            transition: all 0.2s;
+        }
+
+        .meter-bar.active {
+            background: #ef4444; /* fallback */
+        }
+
+        .strength-label {
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+
+        /* Botão gerar */
+        .generate-btn {
+            background: linear-gradient(95deg, #2563eb, #1e40af);
+            width: 100%;
+            border: none;
+            padding: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            border-radius: 3rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 0.7rem;
+            box-shadow: 0 8px 20px -8px #1e3a8a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .generate-btn:hover {
+            background: linear-gradient(95deg, #3b82f6, #2563eb);
+            transform: scale(0.98);
+        }
+
+        /* footer e detalhes */
+        .footer-note {
+            margin-top: 1.2rem;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #5c6a82;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 1.5rem;
+            }
+            .check-item {
+                padding: 0.3rem 0.8rem;
+            }
+            #senhaOutput {
+                font-size: 1rem;
+            }
+        }
+
+        /* força dinâmica - classes para barra ativa */
+        .strength-fraca .meter-bar:nth-child(1) { background: #ef4444; }
+        .strength-fraca .meter-bar:nth-child(2),
+        .strength-fraca .meter-bar:nth-child(3),
+        .strength-fraca .meter-bar:nth-child(4) { background: #232838; }
+
+        .strength-media .meter-bar:nth-child(1),
+        .strength-media .meter-bar:nth-child(2) { background: #f59e0b; }
+        .strength-media .meter-bar:nth-child(3),
+        .strength-media .meter-bar:nth-child(4) { background: #232838; }
+
+        .strength-forte .meter-bar:nth-child(1),
+        .strength-forte .meter-bar:nth-child(2),
+        .strength-forte .meter-bar:nth-child(3),
+        .strength-forte .meter-bar:nth-child(4) { background: #22c55e; }
+
+        .strength-fraca .strength-label { color: #f87171; }
+        .strength-media .strength-label { color: #fbbf24; }
+        .strength-forte .strength-label { color: #4ade80; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>🔐 Personalize sua senha</h1>
+    <div class="sub">Crie combinações seguras com critérios avançados</div>
+
+    <!-- Área de exibição da senha -->
+    <div class="password-area">
+        <div class="password-wrapper">
+            <input type="text" id="senhaOutput" readonly value="S3nh@F0rt3*12" spellcheck="false">
+            <button class="copy-btn" id="copyButton" title="Copiar senha">📋 Copiar</button>
+        </div>
+    </div>
+
+    <!-- Controle número de caracteres -->
+    <div class="control-group">
+        <div class="control-header">
+            <label>🔢 Número de caracteres</label>
+            <span class="length-value" id="lengthValue">12</span>
+        </div>
+        <input type="range" id="lengthSlider" min="4" max="32" value="12" step="1">
+    </div>
+
+    <!-- Características da senha (checkboxes) -->
+    <div class="checks-grid">
+        <div class="check-item">
+            <input type="checkbox" id="chkMaiusculas" checked>
+            <label>🔠 Letras maiúsculas</label>
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="chkMinusculas">
+            <label>🔡 Letras minúsculas</label>
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="chkNumeros">
+            <label>🔢 Números</label>
+        </div>
+        <div class="check-item">
+            <input type="checkbox" id="chkSimbolos">
+            <label>✨ Símbolos</label>
+        </div>
+    </div>
+
+    <!-- Força da senha (dinâmico) -->
+    <div class="strength-section">
+        <div class="strength-title">🔒 Força da senha</div>
+        <div class="strength-meter" id="strengthMeter">
+            <div class="meter-bar"></div>
+            <div class="meter-bar"></div>
+            <div class="meter-bar"></div>
+            <div class="meter-bar"></div>
+        </div>
+        <div class="strength-label" id="strengthText">Fraca</div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn">✨ Gerar nova senha ✨</button>
+    <div class="footer-note">✔ Quanto mais opções e caracteres, mais forte a senha.</div>
+</div>
+
+<script>
+    // --- DOM elements ---
+    const senhaOutput = document.getElementById('senhaOutput');
+    const lengthSlider = document.getElementById('lengthSlider');
+    const lengthValue = document.getElementById('lengthValue');
+    const chkMaiusculas = document.getElementById('chkMaiusculas');
+    const chkMinusculas = document.getElementById('chkMinusculas');
+    const chkNumeros = document.getElementById('chkNumeros');
+    const chkSimbolos = document.getElementById('chkSimbolos');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyButton');
+    const strengthMeterDiv = document.getElementById('strengthMeter');
+    const strengthTextSpan = document.getElementById('strengthText');
+
+    // Conjuntos de caracteres
+    const UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const LOWER = "abcdefghijklmnopqrstuvwxyz";
+    const NUMBERS = "0123456789";
+    const SYMBOLS = "!@#$%^&*()_+-=[]{}|;:,.<>?/`~";
+
+    // para evitar loops infinitos e garantir que pelo menos uma opção esteja ativa
+    function ensureAtLeastOneOption() {
+        const anyChecked = chkMaiusculas.checked || chkMinusculas.checked || chkNumeros.checked || chkSimbolos.checked;
+        if (!anyChecked) {
+            // se nenhum estiver ativo, ativamos letras maiúsculas como padrão (experiência amigável)
+            chkMaiusculas.checked = true;
+            return true;
+        }
+        return anyChecked;
+    }
+
+    // Coleta os caracteres disponíveis baseado nos checkboxes
+    function getCharacterSet() {
+        let chars = "";
+        if (chkMaiusculas.checked) chars += UPPER;
+        if (chkMinusculas.checked) chars += LOWER;
+        if (chkNumeros.checked) chars += NUMBERS;
+        if (chkSimbolos.checked) chars += SYMBOLS;
+        return chars;
+    }
+
+    // Gerador de senha aleatória garantindo pelo menos UM caractere de cada tipo selecionado
+    // para maior robustez e atender a requisitos de segurança reais.
+    function generatePassword() {
+        // garantir que ao menos uma opção marcada
+        ensureAtLeastOneOption();
+        
+        const length = parseInt(lengthSlider.value, 10);
+        let charset = getCharacterSet();
+        
+        // Caso extremo: se charset ficar vazio (não deveria acontecer por causa do ensure), recai para maiúsculas
+        if (charset === "") {
+            charset = UPPER;
+            chkMaiusculas.checked = true;
+        }
+        
+        // Para tornar a senha mais robusta, vamos garantir que cada categoria marcada tenha pelo menos 1 caractere.
+        // Isto evita senhas que não contenham maiúsculas mesmo com a opção ativa.
+        const requiredChars = [];
+        if (chkMaiusculas.checked) requiredChars.push(getRandomCharFromSet(UPPER));
+        if (chkMinusculas.checked) requiredChars.push(getRandomCharFromSet(LOWER));
+        if (chkNumeros.checked) requiredChars.push(getRandomCharFromSet(NUMBERS));
+        if (chkSimbolos.checked) requiredChars.push(getRandomCharFromSet(SYMBOLS));
+        
+        // Calcular quantos caracteres aleatórios adicionais precisamos
+        let remainingLength = length - requiredChars.length;
+        if (remainingLength < 0) {
+            // caso o tamanho seja menor que a quantidade de categorias selecionadas, truncamos (nunca deve acontecer com min 4)
+            // mas por segurança, ajustamos o required chars
+            while (requiredChars.length > length) requiredChars.pop();
+            remainingLength = 0;
+        }
+        
+        // preencher o restante com caracteres aleatórios do conjunto total
+        const allChars = charset;
+        const randomChars = [];
+        for (let i = 0; i < remainingLength; i++) {
+            const randIndex = Math.floor(Math.random() * allChars.length);
+            randomChars.push(allChars[randIndex]);
+        }
+        
+        // unir os caracteres obrigatórios + aleatórios e embaralhar para distribuição uniforme
+        let passwordArray = [...requiredChars, ...randomChars];
+        // embaralhamento Fisher-Yates
+        for (let i = passwordArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [passwordArray[i], passwordArray[j]] = [passwordArray[j], passwordArray[i]];
+        }
+        
+        let generatedPassword = passwordArray.join('');
+        // Em casos raros (se length for maior que zero mas todas as opções estiverem ok) garantimos tamanho final
+        if (generatedPassword.length > length) {
+            generatedPassword = generatedPassword.slice(0, length);
+        } else if (generatedPassword.length < length && allChars.length > 0) {
+            // suplementar caso faltem caracteres por algum bug raro
+            while (generatedPassword.length < length) {
+                generatedPassword += allChars[Math.floor(Math.random() * allChars.length)];
+            }
+        }
+        
+        return generatedPassword;
+    }
+    
+    function getRandomCharFromSet(setStr) {
+        if (!setStr.length) return '';
+        const idx = Math.floor(Math.random() * setStr.length);
+        return setStr[idx];
+    }
+    
+    // Função para calcular força da senha de forma abrangente
+    // Critérios: comprimento, uso de tipos diferentes (maiúscula, minúscula, número, símbolo)
+    // Retorna: "Fraca", "Média", "Forte"
+    function calculateStrength(password) {
+        if (!password) return { label: "Fraca", score: 0 };
+        const length = password.length;
+        
+        let hasUpper = /[A-Z]/.test(password);
+        let hasLower = /[a-z]/.test(password);
+        let hasNumber = /[0-9]/.test(password);
+        let hasSymbol = /[^A-Za-z0-9]/.test(password);
+        
+        let categoriesCount = [hasUpper, hasLower, hasNumber, hasSymbol].filter(Boolean).length;
+        
+        // Pontuação: Comprimento (0-25), diversidade (0-30)
+        let lengthScore = 0;
+        if (length >= 12) lengthScore = 25;
+        else if (length >= 8) lengthScore = 15;
+        else if (length >= 6) lengthScore = 7;
+        else lengthScore = 3;
+        
+        let diversityScore = 0;
+        switch(categoriesCount) {
+            case 4: diversityScore = 30; break;
+            case 3: diversityScore = 20; break;
+            case 2: diversityScore = 10; break;
+            default: diversityScore = 4;
+        }
+        
+        // bônus se comprimento maior que 15 e pelo menos 3 categorias
+        let bonus = (length >= 15 && categoriesCount >= 3) ? 8 : 0;
+        let total = lengthScore + diversityScore + bonus;
+        
+        if (total >= 50) return { label: "Forte", score: 3 };
+        if (total >= 28) return { label: "Média", score: 2 };
+        return { label: "Fraca", score: 1 };
+    }
+    
+    // Atualiza a interface da força da senha (barras + texto)
+    function updateStrengthUI(password) {
+        const strength = calculateStrength(password);
+        const label = strength.label;
+        const score = strength.score;
+        
+        // Remove classes anteriores do container do medidor
+        strengthMeterDiv.classList.remove('strength-fraca', 'strength-media', 'strength-forte');
+        if (label === "Fraca") {
+            strengthMeterDiv.classList.add('strength-fraca');
+            strengthTextSpan.innerText = "🔴 Fraca";
+        } else if (label === "Média") {
+            strengthMeterDiv.classList.add('strength-media');
+            strengthTextSpan.innerText = "🟠 Média";
+        } else {
+            strengthMeterDiv.classList.add('strength-forte');
+            strengthTextSpan.innerText = "🟢 Forte";
+        }
+        
+        // Atualiza visual das barras individualmente de acordo com o score (garantir fallback)
+        const bars = document.querySelectorAll('.meter-bar');
+        if (label === "Fraca") {
+            bars.forEach((bar, idx) => { idx === 0 ? bar.style.background = "#ef4444" : bar.style.background = "#232838"; });
+        } else if (label === "Média") {
+            bars.forEach((bar, idx) => { idx < 2 ? bar.style.background = "#f59e0b" : bar.style.background = "#232838"; });
+        } else {
+            bars.forEach(bar => { bar.style.background = "#22c55e"; });
+        }
+    }
+    
+    // Função principal para atualizar a senha e força na tela
+    function refreshPassword() {
+        // verificar se ao menos uma categoria está ativa antes de gerar
+        ensureAtLeastOneOption();
+        const newPassword = generatePassword();
+        senhaOutput.value = newPassword;
+        updateStrengthUI(newPassword);
+    }
+    
+    // Evento de clique no gerar
+    generateBtn.addEventListener('click', () => {
+        refreshPassword();
+    });
+    
+    // Evento para quando qualquer checkbox mudar -> gerar nova senha automaticamente
+    function handleOptionsChange() {
+        // garantia de que não fique tudo desmarcado
+        ensureAtLeastOneOption();
+        refreshPassword();
+    }
+    
+    chkMaiusculas.addEventListener('change', handleOptionsChange);
+    chkMinusculas.addEventListener('change', handleOptionsChange);
+    chkNumeros.addEventListener('change', handleOptionsChange);
+    chkSimbolos.addEventListener('change', handleOptionsChange);
+    
+    // slider de comprimento altera valor e gera nova senha
+    lengthSlider.addEventListener('input', (e) => {
+        const val = e.target.value;
+        lengthValue.innerText = val;
+        refreshPassword();
+    });
+    
+    // Botão copiar com feedback visual
+    copyBtn.addEventListener('click', async () => {
+        const password = senhaOutput.value;
+        if (!password) return;
+        try {
+            await navigator.clipboard.writeText(password);
+            // feedback temporário no botão
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = "✅ Copiado!";
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 1600);
+        } catch (err) {
+            console.warn("Falha ao copiar: ", err);
+            // fallback
+            alert("Selecione a senha manualmente e copie.");
+        }
+    });
+    
+    // Inicialização: gerar senha padrão com valores iniciais (12, maiúsculas ativo, outros não)
+    function init() {
+        // Ajustar comprimento exibido
+        lengthValue.innerText = lengthSlider.value;
+        // estado checkboxes: já está maiúsculas true e demais false conforme HTML
+        // garantir que mín seja consistente 
+        ensureAtLeastOneOption();
+        refreshPassword();
+    }
+    
+    init();
+    
+    // Prevenir que se todas opções desmarcadas manualmente, voltem a ter uma opção ativa e gere senha
+    // bônus: proteger contra remoção total 
+    function finalGuard() {
+        if (!chkMaiusculas.checked && !chkMinusculas.checked && !chkNumeros.checked && !chkSimbolos.checked) {
+            chkMaiusculas.checked = true;
+            refreshPassword();
+        }
+    }
+    
+    // adicionar guard nos checkboxes via event
+    const allChecks = [chkMaiusculas, chkMinusculas, chkNumeros, chkSimbolos];
+    allChecks.forEach(ch => {
+        ch.addEventListener('change', finalGuard);
+    });
+</script>
+</body>
+</html>
